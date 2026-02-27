@@ -1,0 +1,21 @@
+{
+  "name": "pdf-trim",
+  "version": "1.0.0",
+  "description": "Offline-First PDF Processing PWA",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx serve .",
+    "serve": "python -m http.server 8000",
+    "lint:js": "eslint . --ext .js",
+    "format:js": "prettier --write \"**/*.js\"",
+    "lint:py": "ruff check .",
+    "format:py": "ruff format ."
+  },
+  "dependencies": {
+    "pdf-parse": "^2.4.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  }
+}

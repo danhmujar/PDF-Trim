@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a2a" />
+    <title>PDF Trim - Air-Gapped Computing</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json" />
+    <link rel="apple-touch-icon" href="/icon-192.png" />
+
+    <!-- CSS Layout & Design System -->
+    <link rel="preload" href="./styles.css" as="style" />
+    <link rel="stylesheet" href="./styles.css" />
+
+    <!-- Strict Content Security Policy (Zero-Backend/Air-Gapped) -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://pyscript.net https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://pyscript.net; worker-src 'self' blob:; connect-src 'self' blob: https://pyscript.net https://*.jsdelivr.net https://pypi.org https://files.pythonhosted.org; font-src 'self' data:;"
+    />
+
+    <!-- Enforce Cross-Origin Isolation for SharedArrayBuffer and Register PWA SW -->
+    <!-- SW registration logic moved to app.js for CSP compliance -->
+
+    <!-- PyScript Wasm Runtime dependencies -->
+    <link
+      rel="stylesheet"
+      href="https://pyscript.net/releases/2024.1.1/core.css"
+      integrity="sha384-CVTwnglzq2CtMq51qUwFC7MTxvIN1RJK3496Q72xPQl3MSfgdmnhSsjGvwswoKpJ"
+      crossorigin="anonymous"
+    />
+    <script
+      type="module"
+      src="https://pyscript.net/releases/2024.1.1/core.js"
+      integrity="sha384-5naTsjreUlzrjsvvdqkDsY5ttJy+2MnsVx3u9DpqzTSaDL5svBE6v5menDzO8EHw"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- PyScript Configuration loading the pure-Python pypdf package -->
+    <py-config> packages = ["pypdf"] </py-config>
+  </head>
+
+  <body class="aurora-theme">
+    <!-- Initial Loading State (shown before PyScript initializes) -->
+    <div id="initial-loader" class="initial-loader">
+      <div class="loader-spinner"></div>
+      <p>Initializing Wasm runtime...</p>
+    </div>
+
+    <div class="app-container bento-grid">
+      <!-- Header Panel -->
+      <header class="glass-card header-cell">
+        <h1>PDF Trim</h1>
+        <p>PDF page extraction in your browser.</p>
+      </header>
+
+      <!-- Main Upload Panel (Keyboard Accessible) -->
+      <main
+        class="glass-card upload-cell"
+        id="drop-zone"
+        tabindex="0"
+        role="button"
+        aria-label="Drop a PDF file here or press Enter to upload"
+      >
+        <div class="upload-content">
+          <!-- Inline SVG Icon for Upload -->
+          <svg
+            class="upload-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <h2>Drag & Drop PDF</h2>
+          <p>
+            All processing is 100% local. No data leaves your browser memory
+            heap.
+          </p>
+          <input
+            type="file"
+            id="file-input"
+            accept="application/pdf"
+            aria-hidden="true"
+            tabindex="-1"
+          />
+        </div>
+
+        <!-- Visual Overlay locking interactions during parsing -->
+        <div id="processing-overlay" class="hidden" aria-hidden="true">
+          <div class="spinner"></div>
+          <p id="overlay-text" aria-live="polite">Executing Wasm Core...</p>
+        </div>
+      </main>
+
+      <!-- Status & Operations Panel -->
+      <aside class="glass-card status-cell">
+        <div class="status-header">
+          <h3>System Status</h3>
+          <div
+            class="status-indicator"
+            id="status-dot"
+            aria-label="Status indicator"
+          ></div>
+        </div>
+
+        <div class="keyword-input-group">
+          <label for="extraction-mode">Extraction Heuristic:</label>
+          <select
+            id="extraction-mode"
+            aria-label="Select extraction heuristic mode"
+          >
+            <option value="executive">
+              Deep Profiling: Executive Bios & Remuneration
+            </option>
+            <option value="keyword">Simple: Exact Keyword Truncation</option>
+          </select>
+        </div>
+
+        <div class="keyword-input-group hidden" id="keyword-container">
+          <label for="keyword-input">Target Keyword Expression:</label>
+          <input
+            type="text"
+            id="keyword-input"
+            placeholder="e.g., CEO, remuneration table"
+            value="CEO"
+            aria-label="Target extraction keyword for Wasm pipeline"
+          />
+        </div>
+
+        <div
+          class="status-log-container"
+          aria-live="polite"
+          aria-atomic="false"
+        >
+          <ul id="status-log">
+            <li>System initialized. Ready for PDF ingestion.</li>
+          </ul>
+        </div>
+      </aside>
+    </div>
+
+    <!-- JavaScript Interop / Core DOM bridging -->
+    <script src="./app.js" type="module"></script>
+
+    <!-- Python logic mapped to Wasm -->
+    <script type="py" src="./processor.py"></script>
+
+    <!-- Floating About Toggle Button -->
+    <button
+      id="about-toggle"
+      class="glass-card about-pill"
+      aria-label="About this application"
+      aria-haspopup="dialog"
+      aria-expanded="false"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="about-icon"
+      >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 16v-4"></path>
+        <path d="M12 8h.01"></path>
+      </svg>
+      <span>About</span>
+    </button>
+
+    <!-- Glassmorphic Modal Overlay -->
+    <div id="about-overlay" class="hidden" aria-hidden="true"></div>
+  </body>
+</html>

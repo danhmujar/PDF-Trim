@@ -1,0 +1,696 @@
+/* 
+  Global CSS Variables and Theming
+  Incorporating deep Aurora UI tones and clean modern web variables
+*/
+:root {
+  /* Aurora UI meshed gradients */
+  --bg-aurora:
+    radial-gradient(
+      circle at 15% 50%,
+      rgba(76, 29, 149, 0.25),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 85% 30%,
+      rgba(14, 165, 233, 0.25),
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 50% 80%,
+      rgba(16, 185, 129, 0.2),
+      transparent 50%
+    ),
+    #0f172a;
+
+  /* Glassmorphic variables */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  /* Typography colors ensuring WCAG AA contrast against dark backgrounds */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+
+  /* State colors */
+  --accent: #38bdf8;
+  --success: #10b981;
+  --error: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Initial Loader (before PyScript) */
+.initial-loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-aurora);
+  background-attachment: fixed;
+  z-index: 9999;
+  gap: 1rem;
+  transition: opacity 0.3s ease-out;
+}
+
+.initial-loader p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.loader-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--glass-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+body.aurora-theme {
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  background: var(--bg-aurora);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Base Glass Card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  box-shadow: var(--glass-shadow);
+  padding: 2rem;
+  transition:
+    transform 0.3s ease,
+    border-color 0.3s ease;
+}
+
+/* Bento Grid System */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: minmax(120px, auto);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Top Header */
+.header-cell {
+  grid-column: span 12;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-cell h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #fff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+}
+
+.header-cell p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+}
+
+/* Upload Interface */
+.upload-cell {
+  grid-column: span 8;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.upload-cell:hover,
+.upload-cell.dragover,
+.upload-cell:focus {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.2);
+  outline: none;
+}
+
+.upload-content {
+  text-align: center;
+  pointer-events: none;
+  /* Let drag events fall through to the cell */
+}
+
+.upload-icon {
+  width: 64px;
+  height: 64px;
+  color: var(--accent);
+  margin-bottom: 1rem;
+}
+
+.upload-content h2 {
+  font-size: 1.8rem;
+  margin-bottom: 0.75rem;
+}
+
+.upload-content p {
+  color: var(--text-secondary);
+}
+
+#file-input {
+  display: none;
+}
+
+/* Status Interface */
+.status-cell {
+  grid-column: span 4;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* Polling/Processing LED indicator */
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
+}
+
+.status-indicator.active {
+  background-color: var(--success);
+  box-shadow: 0 0 15px var(--success);
+}
+
+.status-indicator.processing {
+  background-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+  animation: pulse 1.5s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-indicator.processing,
+  .spinner {
+    animation: none !important;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+
+/* Keywords input */
+.keyword-input-group {
+  margin-bottom: 1.5rem;
+}
+
+.keyword-input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.keyword-input-group input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+}
+
+.keyword-input-group input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* Log output terminal-style */
+.status-log-container {
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  padding: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  height: 220px;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  border: 1px solid var(--glass-border);
+  /* Standard scrollbar for Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+}
+
+/* Custom Webkit Scrollbar for Status Log */
+.status-log-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.status-log-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.status-log-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+
+.status-log-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+#status-log {
+  list-style: none;
+}
+
+#status-log li {
+  margin-bottom: 0.5rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid transparent;
+  color: var(--text-secondary);
+}
+
+#status-log li.info {
+  border-left-color: var(--accent);
+  color: var(--text-primary);
+}
+
+#status-log li.success {
+  border-left-color: var(--success);
+  color: var(--success);
+}
+
+#status-log li.error {
+  border-left-color: var(--error);
+  color: var(--error);
+}
+
+/* Wasm Blocking Overlay inside Upload Cell */
+#processing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+
+.hidden {
+  display: none;
+}
+
+#processing-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  /* Keep flex context for fade out */
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--glass-border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#overlay-text {
+  font-weight: 500;
+  color: var(--accent);
+  margin-top: 0.5rem;
+}
+
+/* ==========================================
+   ABOUT MODAL COMPONENT
+   ========================================== */
+
+/* Floating Toggle Button */
+.about-pill {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 9999px;
+  /* Pill shape */
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-primary);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    background 0.3s,
+    border-color 0.3s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.about-pill:hover,
+.about-pill:focus {
+  transform: translateY(-4px) scale(1.05);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  outline: none;
+}
+
+.about-icon {
+  color: var(--accent);
+}
+
+/* Glassmorphic Modal Overlay Background */
+#about-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(15, 23, 42, 0.6);
+  /* Darker backdrop */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+#about-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  /* Retain flex context for transition fade out */
+}
+
+/* The Modal Panel Itself */
+.about-modal {
+  position: relative;
+  width: 100%;
+  max-width: 38rem;
+  /* Compact max-width */
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2.5rem;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.06) 0%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transform: scale(1) translateY(0);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+/* Animate entrance from scale/bottom */
+#about-overlay.hidden .about-modal {
+  transform: scale(0.95) translateY(20px);
+}
+
+/* Close 'X' Button */
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition:
+    color 0.2s,
+    background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-close:hover,
+.modal-close:focus {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+  outline: none;
+}
+
+/* Content Grid Typography & Density */
+.modal-header h2 {
+  font-size: 1.75rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #fff, var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.modal-header p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.grid-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.grid-section h3 svg {
+  color: var(--accent);
+}
+
+/* Tech Badges */
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.badge {
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  color: var(--accent);
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Clean Bulleted Lists */
+.bullet-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bullet-list li {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+.bullet-list li::before {
+  content: "•";
+  color: var(--accent);
+  font-weight: bold;
+}
+
+/* Warning/Limitations Variant */
+.warning-section h3 svg {
+  color: var(--error);
+}
+
+.warning-list li::before {
+  color: var(--error);
+}
+
+/* Developer Credit Footer */
+.developer-credit {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.qr-container {
+  flex-shrink: 0;
+}
+
+.qr-code {
+  display: block;
+}
+
+.bio-container h4 {
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.witty-bio {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.linkedin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.linkedin-link:hover,
+.linkedin-link:focus {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Custom Scrollbar for Modal if content overflows height */
+.about-modal::-webkit-scrollbar {
+  width: 6px;
+}
+
+.about-modal::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.about-modal::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+
+/* Responsive Scaling */
+@media (max-width: 900px) {
+  body.aurora-theme {
+    padding: 1rem;
+  }
+
+  .upload-cell {
+    grid-column: span 12;
+    min-height: 300px;
+  }
+
+  .status-cell {
+    grid-column: span 12;
+    min-height: 350px;
+  }
+
+  /* Responsive Modal Grid */
+  .modal-grid {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .developer-credit {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 1rem;
+  }
+}

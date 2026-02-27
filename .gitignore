@@ -1,0 +1,12 @@
+# Dependencies
+node_modules/
+.env
+
+# Testing assets & temp
+test-assets/
+.tmp/
+*.pdf
+
+# System files
+.DS_Store
+Thumbs.db
