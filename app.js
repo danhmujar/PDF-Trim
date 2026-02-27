@@ -228,6 +228,11 @@ const MODAL_HTML = `
             </a>
           </div>
         </div>
+        <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border); padding-top: 1.5rem; text-align: center;">
+            <button id="reset-app" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: var(--error); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                Clear Offline Cache & Reset
+            </button>
+        </div>
       </div>
 `;
 
@@ -286,14 +291,37 @@ if (aboutToggleBtn && aboutOverlay) {
   const openAboutModal = () => {
     if (!aboutOverlay.innerHTML.trim()) {
       aboutOverlay.innerHTML = MODAL_HTML;
-      aboutCloseBtn = getSafeElement("about-close");
+
+      const aboutCloseBtn = getSafeElement("about-close");
       if (aboutCloseBtn) {
         aboutCloseBtn.addEventListener("click", closeAboutModal);
+      }
+
+      const resetBtn = getSafeElement("reset-app");
+      if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+          if (
+            confirm(
+              "This will clear the offline cache and reload the application. Continue?",
+            )
+          ) {
+            if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+              navigator.serviceWorker.controller.postMessage({
+                type: "CLEAR_CACHE",
+              });
+            }
+            localStorage.clear();
+            sessionStorage.clear();
+            setTimeout(() => window.location.reload(), 500);
+          }
+        });
       }
     }
     aboutOverlay.classList.remove("hidden");
     aboutOverlay.setAttribute("aria-hidden", "false");
     aboutToggleBtn.setAttribute("aria-expanded", "true");
+
+    const aboutCloseBtn = getSafeElement("about-close");
     if (aboutCloseBtn) {
       setTimeout(() => aboutCloseBtn.focus(), 100);
     }

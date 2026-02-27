@@ -1,4 +1,4 @@
-const CACHE_NAME = "pdf-trim-cache-v16";
+const CACHE_NAME = "pdf-trim-cache-v18";
 
 // Static files required for the core layout and styling
 const CORE_ASSETS = [
@@ -8,102 +8,111 @@ const CORE_ASSETS = [
   "./manifest.json",
   "./app.js",
   "./processor.py",
+  "./favicon.ico",
+  "./icon-192.png",
+  "./icon-512.png",
+  "./frame.png",
   "https://pyscript.net/releases/2024.1.1/core.js",
   "https://pyscript.net/releases/2024.1.1/core.css",
 ];
 
-self.addEventListener("install", (event) => {
-  // Force the waiting service worker to become the active service worker
-  self.skipWaiting();
+// Domains we want to cache dynamically (CDN dependencies)
+const CACHEABLE_ORIGINS = [
+  "pyscript.net",
+  "cdn.jsdelivr.net",
+  "pypi.org",
+  "files.pythonhosted.org",
+];
 
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log(
-        "[ServiceWorker] Caching Core App Shell and PyScript Foundation",
-      );
+      console.log("[ServiceWorker] Caching App Shell");
       return cache.addAll(CORE_ASSETS);
     }),
   );
 });
 
 self.addEventListener("activate", (event) => {
-  // Prune old caches and claim clients simultaneously
   const activationTasks = [
     self.clients.claim(),
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log(
-              "[ServiceWorker] Removing old cache constraint",
-              cacheName,
-            );
+            console.log("[ServiceWorker] Pruning old cache:", cacheName);
             return caches.delete(cacheName);
           }
         }),
       );
     }),
   ];
-
   event.waitUntil(Promise.all(activationTasks));
 });
 
-// Cache First Strategy with Dynamic Network Fallback & Cross-Origin Isolation
+// Handle messages from the client
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "CLEAR_CACHE") {
+    console.log("[ServiceWorker] Manual cache reset requested.");
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => caches.delete(cacheName)),
+        );
+      }),
+    );
+  }
+});
+
 self.addEventListener("fetch", (event) => {
-  // We only care about GET requests. We're not doing any POSTing.
   if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+  const isCacheableOrigin = CACHEABLE_ORIGINS.some((origin) =>
+    url.hostname.includes(origin),
+  );
 
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      // Determine our primary fetch response source
       let fetchPromise = cachedResponse
         ? Promise.resolve(cachedResponse)
         : fetch(event.request)
             .then((networkResponse) => {
-              // Ignore invalid responses for caching
+              // Cache successful responses from our app or allowed origins
               if (
-                !networkResponse ||
-                networkResponse.status !== 200 ||
-                (networkResponse.type !== "basic" &&
-                  networkResponse.type !== "cors")
+                networkResponse &&
+                networkResponse.status === 200 &&
+                (url.origin === self.location.origin || isCacheableOrigin) &&
+                networkResponse.type !== "opaque"
               ) {
-                return networkResponse;
+                const responseToCache = networkResponse.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                  cache.put(event.request, responseToCache);
+                });
               }
-
-              // Clone the response as it can only be consumed once
-              const responseToCache = networkResponse.clone();
-              caches.open(CACHE_NAME).then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
               return networkResponse;
             })
             .catch((error) => {
-              console.warn(
-                "[ServiceWorker] Fetch failed, connection offline mode activated for un-cached asset.",
-                error,
-              );
-              // Return a basic error response to prevent complete failure
-              return new Response("Network error", {
-                status: 408,
-                headers: { "Content-Type": "text/plain" },
+              console.error("[ServiceWorker] Fetch failed:", error);
+              if (event.request.mode === "navigate") {
+                return caches.match("./index.html");
+              }
+              return new Response("Offline Content Unavailable", {
+                status: 503,
+                statusText: "Service Unavailable",
+                headers: new Headers({ "Content-Type": "text/plain" }),
               });
             });
 
       // Post-process the response to inject SharedArrayBuffer Cross-Origin Security Headers
       return fetchPromise.then((response) => {
-        // If it's an opaque response (like standard CORS without preflight), we cannot modify headers safely.
-        if (response.type === "opaque") return response;
+        if (!response || response.type === "opaque") return response;
 
-        // Create a new headers object based on the original response
         const newHeaders = new Headers(response.headers);
-
-        // CRITICAL: Inject the required Cross-Origin headers for SharedArrayBuffer
-        // This satisfies the Chrome requirement for Pyodide WebAssembly high-resolution timers
         newHeaders.set("Cross-Origin-Opener-Policy", "same-origin");
         newHeaders.set("Cross-Origin-Embedder-Policy", "require-corp");
 
-        // Return a reconstructed response with the new isolated headers appended
         return new Response(response.body, {
           status: response.status,
           statusText: response.statusText,
