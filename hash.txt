@@ -1,2 +1,0 @@
-https://pyscript.net/releases/2024.1.1/core.js: sha384-5naTsjreUlzrjsvvdqkDsY5ttJy+2MnsVx3u9DpqzTSaDL5svBE6v5menDzO8EHw
-https://pyscript.net/releases/2024.1.1/core.css: sha384-CVTwnglzq2CtMq51qUwFC7MTxvIN1RJK3496Q72xPQl3MSfgdmnhSsjGvwswoKpJ
