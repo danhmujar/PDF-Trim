@@ -648,6 +648,54 @@ body.aurora-theme {
   text-decoration: underline;
 }
 
+/* Cache Reset Section */
+.cache-reset-section {
+  border-top: 1px solid var(--glass-border);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.cache-reset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(239, 68, 68, 0.05); /* Slight error-red tint */
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--error);
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: auto;
+  min-height: 44px;
+}
+
+.cache-reset-btn:hover,
+.cache-reset-btn:focus {
+  background: var(--error);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+  border-color: transparent;
+  outline: none;
+}
+
+.refresh-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.cache-reset-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-top: 0.75rem;
+  line-height: 1.4;
+  opacity: 0.8;
+}
+
 /* Custom Scrollbar for Modal if content overflows height */
 .about-modal::-webkit-scrollbar {
   width: 6px;

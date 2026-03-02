@@ -99,7 +99,7 @@ const MODAL_HTML = `
           <div class="modal-header">
             <h2 id="about-header">About PDF Trim</h2>
             <p>
-              A zero-backend, air-gapped PDF document extraction tool running
+              A zero-backend, local PDF document extraction tool running
               entirely in your browser.
             </p>
           </div>
@@ -182,7 +182,7 @@ const MODAL_HTML = `
             </div>
 
             <div class="arch-note">
-              This tool is "air-gapped" by default. The WebAssembly sandbox has no network or filesystem access.
+              This tool is "local" by default. The WebAssembly sandbox has no network or filesystem access.
             </div>
           </div>
         </div>
@@ -194,7 +194,7 @@ const MODAL_HTML = `
               src="assets/frame.png"
               alt="Scan to connect"
               width="72"
-              height="72"
+              height="89"
               class="qr-code"
               loading="lazy"
             />
@@ -214,6 +214,21 @@ const MODAL_HTML = `
               Connect on LinkedIn <span aria-hidden="true">&rarr;</span>
             </a>
           </div>
+        </div>
+
+        <!-- Manual Cache Reset Section -->
+        <div class="cache-reset-section">
+          <button
+            id="clear-cache-btn"
+            class="cache-reset-btn"
+            aria-label="Clear all application caches and reload the page"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="refresh-icon"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path></svg>
+            Clear Cache & Hard Reload
+          </button>
+          <p class="cache-reset-hint">
+            Use this if you encounter persistent issues after an update.
+          </p>
         </div>
       </div>
 `;
@@ -298,6 +313,29 @@ if (aboutToggleBtn && aboutOverlay) {
       aboutCloseBtn = getSafeElement("about-close");
       if (aboutCloseBtn) {
         aboutCloseBtn.addEventListener("click", closeAboutModal);
+      }
+
+      // Manual Cache Reset Handler
+      const clearCacheBtn = getSafeElement("clear-cache-btn");
+      if (clearCacheBtn) {
+        clearCacheBtn.addEventListener("click", async () => {
+          try {
+            // Prune all caches (ServiceWorker & HTTP)
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map((name) => caches.delete(name)));
+
+            // Unregister all ServiceWorkers
+            if ("serviceWorker" in navigator) {
+              const registrations = await navigator.serviceWorker.getRegistrations();
+              await Promise.all(registrations.map((reg) => reg.unregister()));
+            }
+
+            // Perform a hard-reload (bypassing browser cache)
+            window.location.reload(true);
+          } catch (err) {
+            window.logStatus(`Cache pruning failure: ${err.message}`, "error");
+          }
+        });
       }
 
       // Tab Switching Logic

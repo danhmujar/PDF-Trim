@@ -144,7 +144,7 @@ async def process_pdf_wasm(byte_array_proxy, mode, keyword, filename):
     Refactored to support TOC-driven extraction with cascading fallbacks.
     """
     try:
-        window.logStatus("Air-gap runtime engaged.", "processing")
+        window.logStatus("Local runtime engaged.", "processing")
         
         try:
             raw_bytes = byte_array_proxy.to_bytes()
@@ -290,5 +290,5 @@ async def process_pdf_wasm(byte_array_proxy, mode, keyword, filename):
         raise e
 
 window.process_pdf_wasm = process_pdf_wasm
-window.logStatus("Air-gapped Wasm logic successfully loaded.", "success")
+window.logStatus("Local Wasm logic successfully loaded.", "success")
 window.setIndicator("active")

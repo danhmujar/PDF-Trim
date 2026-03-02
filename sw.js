@@ -23,10 +23,30 @@ self.addEventListener("install", (event) => {
         self.location.hostname === "127.0.0.1"
       ) {
         console.log(
-          "[ServiceWorker] Caching Core App Shell and PyScript Foundation",
+          "[ServiceWorker] Caching Core App Shell and PyScript Foundation (Busting HTTP Cache)",
         );
       }
-      return cache.addAll(CORE_ASSETS);
+
+      // Bypass the browser HTTP cache during installation to ensure fresh assets
+      const cacheRequests = CORE_ASSETS.map((url) => {
+        return fetch(new Request(url, { cache: "reload" }))
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`Failed to fetch ${url} during SW install.`);
+            }
+            return cache.put(url, response);
+          })
+          .catch((err) => {
+            if (
+              self.location.hostname === "localhost" ||
+              self.location.hostname === "127.0.0.1"
+            ) {
+              console.warn(`[ServiceWorker] Cache-bust fetch failed for ${url}:`, err);
+            }
+          });
+      });
+
+      return Promise.all(cacheRequests);
     }),
   );
 });
