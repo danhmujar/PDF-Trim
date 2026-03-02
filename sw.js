@@ -1,4 +1,4 @@
-const CACHE_NAME = "pdf-trim-cache-v17";
+const CACHE_NAME = "pdf-trim-cache-v29";
 
 // Static files required for the core layout and styling
 const CORE_ASSETS = [
@@ -6,6 +6,9 @@ const CORE_ASSETS = [
   "./index.html",
   "./styles.css",
   "./manifest.json",
+  "./favicon.ico",
+  "./icon-192.png",
+  "./icon-512.png",
   "./app.js",
   "./processor.py",
   "https://pyscript.net/releases/2024.1.1/core.js",
@@ -41,7 +44,10 @@ self.addEventListener("install", (event) => {
               self.location.hostname === "localhost" ||
               self.location.hostname === "127.0.0.1"
             ) {
-              console.warn(`[ServiceWorker] Cache-bust fetch failed for ${url}:`, err);
+              console.warn(
+                `[ServiceWorker] Cache-bust fetch failed for ${url}:`,
+                err,
+              );
             }
           });
       });
@@ -119,10 +125,10 @@ self.addEventListener("fetch", (event) => {
                 );
               }
               // Return a basic error response to prevent complete failure
-              return new Response("Network error", {
-                status: 408,
-                headers: { "Content-Type": "text/plain" },
-              });
+              return new Response(
+                '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Offline</title></head><body style="text-align:center;padding:2rem;font-family:system-ui,sans-serif;background:#0f172a;color:#f8fafc;"><h1>Offline</h1><p>This resource is not available offline.<br>Please reconnect and try again.</p></body></html>',
+                { status: 408, headers: { "Content-Type": "text/html" } }
+              );
             });
 
       // Post-process the response to inject SharedArrayBuffer Cross-Origin Security Headers

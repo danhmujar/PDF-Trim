@@ -5,10 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0a2a" />
     <title>PDF Trim - Local Computing</title>
+    
+    <link rel="dns-prefetch" href="https://pyscript.net" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://pypi.org" />
+    <link rel="dns-prefetch" href="https://files.pythonhosted.org" />
 
-    <!-- PWA Manifest -->
+    <!-- PWA Manifest & Icons -->
     <link rel="manifest" href="./manifest.json" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
+    <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
 
     <!-- CSS Layout & Design System -->
     <link rel="preload" href="./styles.css" as="style" />
@@ -17,7 +23,7 @@
     <!-- Strict Content Security Policy (Zero-Backend/Local) -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://pyscript.net https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://pyscript.net; worker-src 'self' blob:; connect-src 'self' blob: https://pyscript.net https://*.jsdelivr.net https://pypi.org https://files.pythonhosted.org; font-src 'self' data:;"
+      content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://pyscript.net https://*.jsdelivr.net; style-src 'self' 'unsafe-inline' https://pyscript.net; worker-src 'self' blob:; connect-src 'self' blob: https://pyscript.net https://*.jsdelivr.net https://pypi.org https://files.pythonhosted.org; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self';"
     />
 
     <!-- Enforce Cross-Origin Isolation for SharedArrayBuffer and Register PWA SW -->
@@ -37,16 +43,28 @@
       crossorigin="anonymous"
     ></script>
 
-    <!-- PyScript Configuration loading the pure-Python pypdf package -->
-    <py-config> packages = ["pypdf"] </py-config>
+    <!-- PyScript Configuration loading the pure-Python pypdf and pdfminer.six packages -->
+    <py-config> packages = ["pypdf", "pdfminer.six"] </py-config>
   </head>
 
   <body class="aurora-theme">
+    <noscript>
+      <p style="text-align:center;padding:2rem;color:#f8fafc;background:#0f172a;min-height:100vh;display:flex;align-items:center;justify-content:center;">
+        PDF Trim requires JavaScript and WebAssembly to function.<br>Please enable JavaScript in your browser settings.
+      </p>
+    </noscript>
+
+    <!-- Animated background circles -->
+    <div class="animated-circle animated-circle-1"></div>
+    <div class="animated-circle animated-circle-2"></div>
+
     <!-- Initial Loading State (shown before PyScript initializes) -->
     <div id="initial-loader" class="initial-loader">
       <div class="loader-spinner"></div>
       <p>Initializing Wasm runtime...</p>
     </div>
+
+    <a href="#drop-zone" class="skip-link">Skip to main content</a>
 
     <div class="app-container bento-grid">
       <!-- Header Panel -->
@@ -112,15 +130,23 @@
         </div>
 
         <div class="keyword-input-group">
-          <label for="extraction-mode">Extraction Heuristic:</label>
+          <label for="extraction-mode">Extraction Logic:</label>
           <select
             id="extraction-mode"
-            aria-label="Select extraction heuristic mode"
+            aria-label="Select extraction logic mode"
           >
             <option value="executive">
-              Deep Profiling: Executive Bios & Remuneration
+              Deep Profiling: Executive/Non-Executive Bios & Remuneration
             </option>
             <option value="keyword">Simple: Exact Keyword Truncation</option>
+          </select>
+        </div>
+
+        <div class="keyword-input-group">
+          <label for="output-format">Output Format:</label>
+          <select id="output-format" aria-label="Select output format">
+            <option value="pdf">PDF Document</option>
+            <option value="markdown">Markdown Text</option>
           </select>
         </div>
 
@@ -141,7 +167,7 @@
           aria-atomic="false"
         >
           <ul id="status-log">
-            <li>System initialized. Ready for PDF ingestion.</li>
+            <li class="info">System initialized. Ready for PDF ingestion.</li>
           </ul>
         </div>
       </aside>
@@ -152,6 +178,52 @@
 
     <!-- Python logic mapped to Wasm -->
     <script type="py" src="./processor.py"></script>
+
+    <!-- Theme Toggle -->
+    <button
+      id="theme-toggle"
+      class="glass-card about-pill theme-toggle"
+      aria-label="Toggle light/dark mode"
+    >
+      <!-- Sun icon (shown in dark mode) -->
+      <svg
+        class="sun-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <!-- Moon icon (shown in light mode) -->
+      <svg
+        class="moon-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
 
     <!-- Floating About Toggle Button -->
     <button

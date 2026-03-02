@@ -22,9 +22,30 @@ const dropZone = getSafeElement("drop-zone");
 const fileInput = getSafeElement("file-input");
 const keywordInput = getSafeElement("keyword-input");
 const extractionMode = getSafeElement("extraction-mode");
+const outputFormat = getSafeElement("output-format");
 const keywordContainer = getSafeElement("keyword-container");
 const statusLog = getSafeElement("status-log");
 const initialLoader = getSafeElement("initial-loader");
+const themeToggle = getSafeElement("theme-toggle");
+
+// Initialize theme from localStorage (Last used logic)
+const initTheme = () => {
+  const savedTheme = localStorage.getItem("pdf-trim-theme") || "dark";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+};
+
+initTheme();
+
+// Theme toggle event listener
+if (themeToggle) {
+  themeToggle.addEventListener("click", () => {
+    const currentTheme =
+      document.documentElement.getAttribute("data-theme") || "dark";
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", newTheme);
+    localStorage.setItem("pdf-trim-theme", newTheme);
+  });
+}
 
 // Hide initial loader once PyScript is ready
 const hideInitialLoader = () => {
@@ -104,53 +125,62 @@ const MODAL_HTML = `
             </p>
           </div>
 
-          <div class="modal-grid">
-            <div class="grid-section">
+          <div class="feature-list">
+            <div class="feature-item">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
                 Tech Stack
               </h3>
+              <p class="section-desc">A pure serverless architecture leveraging modern web standards:</p>
               <div class="tech-badges">
                 <span class="badge">PyScript</span>
                 <span class="badge">WebAssembly</span>
                 <span class="badge">JavaScript</span>
                 <span class="badge">PWA</span>
+                <span class="badge">pypdf</span>
+                <span class="badge">pdfminer.six</span>
               </div>
             </div>
 
-            <div class="grid-section">
+            <div class="feature-item">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                Security
+                Security & Privacy
               </h3>
+              <p class="section-desc">Designed with a Zero-Trust, local-first paradigm:</p>
               <ul class="bullet-list">
-                <li>100% Client-Side Processing</li>
-                <li>Strict CSP & Integrity</li>
-                <li>Zero Data Exfiltration</li>
+                <li><strong>100% Client-Side Processing</strong> - Files never leave your device.</li>
+                <li><strong>Local Memory Sandbox</strong> - Wasm execution prevents network egress.</li>
+                <li><strong>Deep File Validation</strong> - Strict MIME and magic bytes checking.</li>
+                <li><strong>Hardware Isolation</strong> - Uses COOP/COEP headers.</li>
               </ul>
             </div>
 
-            <div class="grid-section">
+            <div class="feature-item">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-                Features
+                Comprehensive Features
               </h3>
+              <p class="section-desc">Advanced heuristics for intelligent document parsing:</p>
               <ul class="bullet-list">
-                <li>Regex Keyword Extraction</li>
-                <li>Executive Remuneration Profiling</li>
-                <li>Offline Capable (SW)</li>
+                <li><strong>TOC-Driven Slicing</strong> - Parses metadata bookmarks and visual TOCs to extract exact page ranges.</li>
+                <li><strong>Multi-Stage Fallbacks</strong> - Legacy state-machine execution for unstructured legacy documents.</li>
+                <li><strong>Multi-Format Export</strong> - Synthesize native PDF documents or output layout-aware Markdown text.</li>
+                <li><strong>RegEx Discrete Search</strong> - Granular page truncation matching custom string expressions.</li>
               </ul>
             </div>
 
-            <div class="grid-section warning-section">
+            <div class="feature-item warning-item">
               <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                Limitations
+                System Limitations
               </h3>
+              <p class="section-desc">Due to the constraints of the browser-based execution environment:</p>
               <ul class="bullet-list warning-list">
-                <li>Initial load: ~12MB buffer</li>
-                <li>Thread blocking compute</li>
-                <li>Desktop-optimized density</li>
+                <li><strong>Initial Load</strong> - ~20MB buffer payload (cached offline after first visit).</li>
+                <li><strong>File Size Cap</strong> - Hard 50MB file size limit to prevent Wasm heap memory exhaustion.</li>
+                <li><strong>Thread Blocking</strong> - Heavy processing may temporarily freeze the DOM.</li>
+                <li><strong>Markdown Conversion</strong> - Extraction drops complex visual formatting like tables and nested images.</li>
               </ul>
             </div>
           </div>
@@ -167,7 +197,7 @@ const MODAL_HTML = `
               <p>The secure interop layer that moves raw bytes from JavaScript into the <strong>WebAssembly (Wasm)</strong> environment, enabling near-native Python execution in the browser.</p>
               
               <h3>🚂 The processor.py Engine</h3>
-              <p>The core intelligence utilizing the <strong>pypdf</strong> library. It parses PDF AST structures and applies <strong>Parent-Bound Slicing</strong> for surgical page extraction.</p>
+              <p>The core intelligence utilizing <strong>pypdf</strong> and <strong>pdfminer.six</strong>. It parses PDF AST structures, applies <strong>Parent-Bound Slicing</strong> for surgical page extraction, and can optionally generate layout-aware Markdown text outputs leveraging spatial margin calculations (<code>LAParams</code>).</p>
             </div>
 
             <div class="arch-visual-container">
@@ -175,7 +205,7 @@ const MODAL_HTML = `
             </div>
 
             <h3>🪚 Parent-Bound Slicing Logic</h3>
-            <p>Unlike keyword scanning, this algorithm traverses the internal <strong>Bookmark Tree</strong> to find contextual boundaries. It identifies section starts and calculates the range until the next sibling node, ensuring every relevant page is captured.</p>
+            <p>Unlike keyword scanning, this multi-phase algorithm traverses the internal <strong>Bookmark Tree</strong> to find contextual boundaries (Phase 1). If a metadata roadmap doesn't exist, it applies <strong>Visual TOC Regex Scraping</strong> (Phase 2 & 3) to calculate printed page offsets to absolute indices. It identifies section starts and calculates the range until the next sibling node, ensuring every relevant page is captured before falling back to legacy state-machine heuristics.</p>
 
             <div class="arch-visual-container">
               <img src="assets/slicing_diagram.png" alt="Parent-Bound Slicing Concept" class="arch-diagram-img" loading="lazy" width="800" height="600">
@@ -189,16 +219,6 @@ const MODAL_HTML = `
 
         <!-- Developer Credit Footer -->
         <div class="developer-credit">
-          <div class="qr-container">
-            <img
-              src="assets/frame.png"
-              alt="Scan to connect"
-              width="72"
-              height="89"
-              class="qr-code"
-              loading="lazy"
-            />
-          </div>
           <div class="bio-container">
             <h4>Built by Danh Michael Mujar</h4>
             <p class="witty-bio">
@@ -206,7 +226,7 @@ const MODAL_HTML = `
               caffeine, and Generative AI."
             </p>
             <a
-              href="https://www.linkedin.com/in/danh-michael-mujar-599112210"
+              href="https://www.linkedin.com/in/danhmujar"
               target="_blank"
               rel="noopener noreferrer"
               class="linkedin-link"
@@ -300,10 +320,29 @@ if ("serviceWorker" in navigator) {
 if (aboutToggleBtn && aboutOverlay) {
   let aboutCloseBtn = null;
 
+  const trapFocus = (e) => {
+    if (e.key !== "Tab") return;
+    const focusable = aboutOverlay.querySelectorAll(
+      'button, [href], input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
+
   const closeAboutModal = () => {
     aboutOverlay.classList.add("hidden");
     aboutOverlay.setAttribute("aria-hidden", "true");
     aboutToggleBtn.setAttribute("aria-expanded", "false");
+    document.removeEventListener("keydown", trapFocus);
     aboutToggleBtn.focus();
   };
 
@@ -326,12 +365,13 @@ if (aboutToggleBtn && aboutOverlay) {
 
             // Unregister all ServiceWorkers
             if ("serviceWorker" in navigator) {
-              const registrations = await navigator.serviceWorker.getRegistrations();
+              const registrations =
+                await navigator.serviceWorker.getRegistrations();
               await Promise.all(registrations.map((reg) => reg.unregister()));
             }
 
             // Perform a hard-reload (bypassing browser cache)
-            window.location.reload(true);
+            window.location.reload();
           } catch (err) {
             window.logStatus(`Cache pruning failure: ${err.message}`, "error");
           }
@@ -342,7 +382,7 @@ if (aboutToggleBtn && aboutOverlay) {
       const tabs = aboutOverlay.querySelectorAll(".tab-btn");
       const panels = aboutOverlay.querySelectorAll(".tab-panel");
 
-      tabs.forEach((tab) => {
+      tabs.forEach((tab, index) => {
         tab.addEventListener("click", () => {
           const targetId = tab.getAttribute("aria-controls");
 
@@ -357,11 +397,32 @@ if (aboutToggleBtn && aboutOverlay) {
           const targetPanel = aboutOverlay.querySelector(`#${targetId}`);
           if (targetPanel) targetPanel.classList.add("active");
         });
+
+        // Arrow Key Navigation
+        tab.addEventListener("keydown", (e) => {
+          let newIndex = -1;
+          if (e.key === "ArrowRight") {
+            newIndex = (index + 1) % tabs.length;
+          } else if (e.key === "ArrowLeft") {
+            newIndex = (index - 1 + tabs.length) % tabs.length;
+          } else if (e.key === "Home") {
+            newIndex = 0;
+          } else if (e.key === "End") {
+            newIndex = tabs.length - 1;
+          }
+
+          if (newIndex !== -1) {
+            e.preventDefault();
+            tabs[newIndex].focus();
+            tabs[newIndex].click();
+          }
+        });
       });
     }
     aboutOverlay.classList.remove("hidden");
     aboutOverlay.setAttribute("aria-hidden", "false");
     aboutToggleBtn.setAttribute("aria-expanded", "true");
+    document.addEventListener("keydown", trapFocus);
     if (aboutCloseBtn) {
       setTimeout(() => aboutCloseBtn.focus(), 100);
     }
@@ -513,6 +574,7 @@ async function handleFileSelect(files) {
   }
 
   const mode = extractionMode ? extractionMode.value : "executive";
+  const format = outputFormat ? outputFormat.value : "pdf";
   const keyword = keywordInput ? keywordInput.value.trim() : "";
   if (mode === "keyword" && !keyword) {
     window.logStatus(
@@ -522,18 +584,19 @@ async function handleFileSelect(files) {
     return;
   }
 
-  processPDF(file, mode, keyword);
+  processPDF(file, mode, format, keyword);
 }
 
 /**
  * Buffer Management and PyScript Execution Pipeline
  */
-async function processPDF(file, mode, keyword) {
+async function processPDF(file, mode, format, keyword) {
   window.logStatus(`Buffering "${file.name}" into HEAP memory...`, "info");
   window.setIndicator("processing");
 
   if (overlay && overlayText) {
     overlay.classList.remove("hidden");
+    overlay.setAttribute("aria-hidden", "false");
     overlayText.textContent = `Buffering ${file.name}...`;
   }
 
@@ -556,15 +619,16 @@ async function processPDF(file, mode, keyword) {
     const uint8Array = new Uint8Array(arrayBuffer);
 
     const startTime = performance.now();
-    const synthesizedBytesProxy = await window.process_pdf_wasm(
+    const result = await window.process_pdf_wasm(
       uint8Array,
       mode,
+      format,
       keyword,
       file.name,
     );
     const elapsed = (performance.now() - startTime).toFixed(2);
 
-    if (!synthesizedBytesProxy) {
+    if (!result) {
       window.logStatus(
         `Extraction complete in ${elapsed}ms. No pages matched "${keyword}". Extraction aborted.`,
         "error",
@@ -573,41 +637,73 @@ async function processPDF(file, mode, keyword) {
       return;
     }
 
-    window.logStatus(
-      `Truncation core finalized in ${elapsed}ms. Building Blob...`,
-      "success",
-    );
+    // Handle output based on format (pdf vs markdown)
+    if (format === "markdown") {
+      // result is a string (Markdown text)
+      window.logStatus(
+        `Markdown extraction complete in ${elapsed}ms. Building download...`,
+        "success",
+      );
 
-    let outBytes;
-    if (synthesizedBytesProxy.toJs) {
-      outBytes = synthesizedBytesProxy.toJs();
-      synthesizedBytesProxy.destroy();
+      const markdownText = typeof result === "string" ? result : "";
+      const blob = new Blob([markdownText], { type: "text/markdown" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.classList.add("hidden");
+      a.href = url;
+      a.download = `[PDF-TRIM]_${file.name.replace(".pdf", ".md")}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      const cleanup = () => {
+        if (document.body.contains(a)) document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        window.removeEventListener("focus", cleanup);
+      };
+      window.addEventListener("focus", cleanup);
+      setTimeout(cleanup, 10000);
+
+      window.logStatus("Markdown file downloaded successfully.", "success");
+      window.setIndicator("active");
     } else {
-      outBytes = synthesizedBytesProxy;
+      // result is PDF bytes proxy
+      window.logStatus(
+        `Truncation core finalized in ${elapsed}ms. Building Blob...`,
+        "success",
+      );
+
+      let outBytes;
+      if (result.toJs) {
+        outBytes = result.toJs();
+        result.destroy();
+      } else {
+        outBytes = result;
+      }
+
+      const blob = new Blob([outBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.classList.add("hidden");
+      a.href = url;
+      a.download = `[PDF-TRIM]_${file.name}`;
+
+      document.body.appendChild(a);
+      a.click();
+
+      const cleanup = () => {
+        if (document.body.contains(a)) document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        window.removeEventListener("focus", cleanup);
+      };
+      window.addEventListener("focus", cleanup);
+      setTimeout(cleanup, 10000);
+
+      window.logStatus("Truncated PDF synthesis downloaded safely.", "success");
+      window.setIndicator("active");
     }
-
-    const blob = new Blob([outBytes], { type: "application/pdf" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.classList.add("hidden");
-    a.href = url;
-    a.download = `[PDF-TRIM]_${file.name}`;
-
-    document.body.appendChild(a);
-    a.click();
-
-    // [LOW] Robust Blob URL Revocation
-    const cleanup = () => {
-      if (document.body.contains(a)) document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      window.removeEventListener("focus", cleanup);
-    };
-    window.addEventListener("focus", cleanup);
-    setTimeout(cleanup, 10000);
-
-    window.logStatus("Truncated PDF synthesis downloaded safely.", "success");
-    window.setIndicator("active");
   } catch (err) {
     if (
       window.location.hostname === "localhost" ||
@@ -621,7 +717,10 @@ async function processPDF(file, mode, keyword) {
     );
     window.setIndicator("");
   } finally {
-    if (overlay) overlay.classList.add("hidden");
+    if (overlay) {
+      overlay.classList.add("hidden");
+      overlay.setAttribute("aria-hidden", "true");
+    }
     if (fileInput) fileInput.value = "";
   }
 }

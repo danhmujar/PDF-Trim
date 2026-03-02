@@ -37,3 +37,6 @@ old_processor.py
 Thumbs.db
 __pycache__/
 *.log
+
+#implementation plan
+implementation_plan.md

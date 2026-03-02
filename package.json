@@ -10,10 +10,6 @@
     "format:js": "prettier --write \"**/*.js\""
   },
   "note": "Python runs via PyScript in-browser. Local Python linting requires Python installed separately.",
-  "dependencies": {
-    "pdf-parse": "^2.4.5",
-    "pdfjs-dist": "^5.4.624"
-  },
   "devDependencies": {
     "eslint": "^8.57.0",
     "prettier": "^3.2.5"
