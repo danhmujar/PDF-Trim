@@ -18,9 +18,14 @@ self.addEventListener("install", (event) => {
 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log(
-        "[ServiceWorker] Caching Core App Shell and PyScript Foundation",
-      );
+      if (
+        self.location.hostname === "localhost" ||
+        self.location.hostname === "127.0.0.1"
+      ) {
+        console.log(
+          "[ServiceWorker] Caching Core App Shell and PyScript Foundation",
+        );
+      }
       return cache.addAll(CORE_ASSETS);
     }),
   );
@@ -34,10 +39,15 @@ self.addEventListener("activate", (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log(
-              "[ServiceWorker] Removing old cache constraint",
-              cacheName,
-            );
+            if (
+              self.location.hostname === "localhost" ||
+              self.location.hostname === "127.0.0.1"
+            ) {
+              console.log(
+                "[ServiceWorker] Removing old cache constraint",
+                cacheName,
+              );
+            }
             return caches.delete(cacheName);
           }
         }),
@@ -59,36 +69,41 @@ self.addEventListener("fetch", (event) => {
       let fetchPromise = cachedResponse
         ? Promise.resolve(cachedResponse)
         : fetch(event.request)
-          .then((networkResponse) => {
-            // Ignore invalid responses for caching
-            if (
-              !networkResponse ||
-              networkResponse.status !== 200 ||
-              (networkResponse.type !== "basic" &&
-                networkResponse.type !== "cors")
-            ) {
+            .then((networkResponse) => {
+              // Ignore invalid responses for caching
+              if (
+                !networkResponse ||
+                networkResponse.status !== 200 ||
+                (networkResponse.type !== "basic" &&
+                  networkResponse.type !== "cors")
+              ) {
+                return networkResponse;
+              }
+
+              // Clone the response as it can only be consumed once
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
               return networkResponse;
-            }
-
-            // Clone the response as it can only be consumed once
-            const responseToCache = networkResponse.clone();
-            caches.open(CACHE_NAME).then((cache) => {
-              cache.put(event.request, responseToCache);
+            })
+            .catch((error) => {
+              if (
+                self.location.hostname === "localhost" ||
+                self.location.hostname === "127.0.0.1"
+              ) {
+                console.warn(
+                  "[ServiceWorker] Fetch failed, connection offline mode activated for un-cached asset.",
+                  error,
+                );
+              }
+              // Return a basic error response to prevent complete failure
+              return new Response("Network error", {
+                status: 408,
+                headers: { "Content-Type": "text/plain" },
+              });
             });
-
-            return networkResponse;
-          })
-          .catch((error) => {
-            console.warn(
-              "[ServiceWorker] Fetch failed, connection offline mode activated for un-cached asset.",
-              error,
-            );
-            // Return a basic error response to prevent complete failure
-            return new Response("Network error", {
-              status: 408,
-              headers: { "Content-Type": "text/plain" },
-            });
-          });
 
       // Post-process the response to inject SharedArrayBuffer Cross-Origin Security Headers
       return fetchPromise.then((response) => {

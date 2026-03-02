@@ -21,6 +21,10 @@ skills/
 .vscode/
 .idea/
 
+# Audit & Planning (Internal documents)
+PWA_AUDIT_REPORT.md
+EXECUTION_PLAN.md
+
 # Debug & Utility Scripts
 check_pdf.js
 check_pdf.py

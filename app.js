@@ -7,7 +7,13 @@
 // Helper for DOM Null-Safety
 const getSafeElement = (id) => {
   const el = document.getElementById(id);
-  if (!el) console.warn(`[DOM] Element #${id} not found.`);
+  if (
+    !el &&
+    (window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1")
+  ) {
+    console.warn(`[DOM] Element #${id} not found.`);
+  }
   return el;
 };
 
@@ -165,14 +171,14 @@ const MODAL_HTML = `
             </div>
 
             <div class="arch-visual-container">
-              <img src="assets/arch_diagram.png" alt="PDF Trim Architectural Diagram" class="arch-diagram-img" loading="lazy">
+              <img src="assets/arch_diagram.png" alt="PDF Trim Architectural Diagram" class="arch-diagram-img" loading="lazy" width="800" height="600">
             </div>
 
             <h3>🪚 Parent-Bound Slicing Logic</h3>
             <p>Unlike keyword scanning, this algorithm traverses the internal <strong>Bookmark Tree</strong> to find contextual boundaries. It identifies section starts and calculates the range until the next sibling node, ensuring every relevant page is captured.</p>
 
             <div class="arch-visual-container">
-              <img src="assets/slicing_diagram.png" alt="Parent-Bound Slicing Concept" class="arch-diagram-img" loading="lazy">
+              <img src="assets/slicing_diagram.png" alt="Parent-Bound Slicing Concept" class="arch-diagram-img" loading="lazy" width="800" height="600">
             </div>
 
             <div class="arch-note">
@@ -188,6 +194,7 @@ const MODAL_HTML = `
               src="assets/frame.png"
               alt="Scan to connect"
               width="72"
+              height="72"
               class="qr-code"
               loading="lazy"
             />
@@ -219,11 +226,21 @@ if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register("./sw.js")
       .then((reg) => {
-        console.log("[SW] Registered successfully.", reg.scope);
+        if (
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1"
+        ) {
+          console.log("[SW] Registered successfully.", reg.scope);
+        }
 
         // Auto-update: reload when a new SW takes control
         navigator.serviceWorker.addEventListener("controllerchange", () => {
-          console.log("[SW] New version detected, reloading...");
+          if (
+            window.location.hostname === "localhost" ||
+            window.location.hostname === "127.0.0.1"
+          ) {
+            console.log("[SW] New version detected, reloading...");
+          }
           window.location.reload();
         });
 
@@ -241,13 +258,25 @@ if ("serviceWorker" in navigator) {
           }
         }
       })
-      .catch((err) => console.error("[SW] Registration failed:", err));
+      .catch((err) => {
+        if (
+          window.location.hostname === "localhost" ||
+          window.location.hostname === "127.0.0.1"
+        ) {
+          console.error("[SW] Registration failed:", err);
+        }
+      });
   };
   window.addEventListener("load", registerSW);
 } else {
-  console.warn(
-    "Service Workers are not supported. Offline features and Cross-Origin Isolation are disabled.",
-  );
+  if (
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1"
+  ) {
+    console.warn(
+      "Service Workers are not supported. Offline features and Cross-Origin Isolation are disabled.",
+    );
+  }
 }
 
 // ==========================================
@@ -523,7 +552,7 @@ async function processPDF(file, mode, keyword) {
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-    a.style.display = "none";
+    a.classList.add("hidden");
     a.href = url;
     a.download = `[PDF-TRIM]_${file.name}`;
 
@@ -542,7 +571,12 @@ async function processPDF(file, mode, keyword) {
     window.logStatus("Truncated PDF synthesis downloaded safely.", "success");
     window.setIndicator("active");
   } catch (err) {
-    console.error(err);
+    if (
+      window.location.hostname === "localhost" ||
+      window.location.hostname === "127.0.0.1"
+    ) {
+      console.error(err);
+    }
     window.logStatus(
       `Pipeline Execution Core Failure: ${err.message}`,
       "error",

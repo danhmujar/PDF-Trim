@@ -280,7 +280,12 @@ async def process_pdf_wasm(byte_array_proxy, mode, keyword, filename):
         return output_stream.getvalue()
         
     except Exception as e:
-        window.console.error(f"Local Execution Fault (Internal): {str(e)}")
+        # Only log to browser console in development
+        try:
+            if window.location.hostname in ('localhost', '127.0.0.1'):
+                window.console.error(f"Local Execution Fault (Internal): {str(e)}")
+        except Exception:
+            pass
         window.logStatus(f"Pipeline Execution Core Failure: {str(e)}", "error")
         raise e
 
