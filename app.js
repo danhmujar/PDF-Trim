@@ -189,16 +189,6 @@ const MODAL_HTML = `
 
         <!-- Developer Credit Footer -->
         <div class="developer-credit">
-          <div class="qr-container">
-            <img
-              src="assets/frame.png"
-              alt="Scan to connect"
-              width="72"
-              height="89"
-              class="qr-code"
-              loading="lazy"
-            />
-          </div>
           <div class="bio-container">
             <h4>Built by Danh Michael Mujar</h4>
             <p class="witty-bio">
@@ -206,7 +196,7 @@ const MODAL_HTML = `
               caffeine, and Generative AI."
             </p>
             <a
-              href="https://www.linkedin.com/in/danh-michael-mujar-599112210"
+              href="https://www.linkedin.com/in/danhmujar"
               target="_blank"
               rel="noopener noreferrer"
               class="linkedin-link"
@@ -326,7 +316,8 @@ if (aboutToggleBtn && aboutOverlay) {
 
             // Unregister all ServiceWorkers
             if ("serviceWorker" in navigator) {
-              const registrations = await navigator.serviceWorker.getRegistrations();
+              const registrations =
+                await navigator.serviceWorker.getRegistrations();
               await Promise.all(registrations.map((reg) => reg.unregister()));
             }
 

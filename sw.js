@@ -1,4 +1,4 @@
-const CACHE_NAME = "pdf-trim-cache-v17";
+const CACHE_NAME = "pdf-trim-cache-v18";
 
 // Static files required for the core layout and styling
 const CORE_ASSETS = [
@@ -6,6 +6,9 @@ const CORE_ASSETS = [
   "./index.html",
   "./styles.css",
   "./manifest.json",
+  "./favicon.ico",
+  "./icon-192.png",
+  "./icon-512.png",
   "./app.js",
   "./processor.py",
   "https://pyscript.net/releases/2024.1.1/core.js",
@@ -41,7 +44,10 @@ self.addEventListener("install", (event) => {
               self.location.hostname === "localhost" ||
               self.location.hostname === "127.0.0.1"
             ) {
-              console.warn(`[ServiceWorker] Cache-bust fetch failed for ${url}:`, err);
+              console.warn(
+                `[ServiceWorker] Cache-bust fetch failed for ${url}:`,
+                err,
+              );
             }
           });
       });
