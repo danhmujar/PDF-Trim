@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+package-lock.json
+.env
+
+# Testing assets & temp
+test-assets/
+.tmp/
+*.pdf
+*.bak
+temp_hash.js
+
+# Documentation & Design Artifacts (Included in Git)
+# assets/ contents are tracked
+
+# Development & Metadata
+AGENTS.md
+GEMINI.md
+TODO.md
+skills/
+.vscode/
+.idea/
+
+# Debug & Utility Scripts
+check_pdf.js
+check_pdf.py
+debug_bounds.py
+hash.txt
+old_processor.py
+
+# System files & Python
+.DS_Store
+Thumbs.db
+__pycache__/
+*.log
