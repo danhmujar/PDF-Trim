@@ -109,7 +109,7 @@
 
 [data-theme="light"] .keyword-input-group input,
 [data-theme="light"] .keyword-input-group select {
-  background: rgba(0, 0, 0, 0.05);
+  background-color: rgba(0, 0, 0, 0.05);
   border-color: rgba(0, 0, 0, 0.1);
   color: var(--text-primary);
 }
@@ -199,10 +199,6 @@
   background: rgba(0, 0, 0, 0.05);
   border-color: rgba(0, 0, 0, 0.1);
   color: var(--text-primary);
-}
-
-[data-theme="light"] .cache-reset-btn:hover {
-  background: rgba(0, 0, 0, 0.08);
 }
 
 [data-theme="light"] .status-log-container::-webkit-scrollbar-thumb {
@@ -538,7 +534,7 @@ body.aurora-theme {
   font-size: 1rem;
   outline: none;
   transition:
-    background 0.4s ease,
+    background-color 0.4s ease,
     border-color 0.3s ease,
     color 0.3s ease;
 }
